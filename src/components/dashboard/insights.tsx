@@ -1,8 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Brain, TrendingUp, Target, Award, RefreshCw, Lightbulb } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Brain, TrendingUp, Target, Award, RefreshCw, Lightbulb, Send, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -17,15 +19,28 @@ interface InsightsData {
   insights: Insight[];
 }
 
+interface ChatMessage {
+  role: 'user' | 'assistant';
+  content: string;
+}
+
 export function Insights() {
   const [insights, setInsights] = useState<Insight[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const [inputMessage, setInputMessage] = useState('');
+  const [isSendingMessage, setIsSendingMessage] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
   useEffect(() => {
     loadInsights();
   }, []);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [chatMessages]);
 
   const loadInsights = async () => {
     try {
@@ -74,6 +89,44 @@ export function Insights() {
   const handleRefresh = () => {
     setIsRefreshing(true);
     loadInsights();
+  };
+
+  const sendMessage = async () => {
+    if (!inputMessage.trim() || isSendingMessage) return;
+
+    const userMessage: ChatMessage = { role: 'user', content: inputMessage };
+    setChatMessages(prev => [...prev, userMessage]);
+    setInputMessage('');
+    setIsSendingMessage(true);
+
+    try {
+      const { data, error } = await supabase.functions.invoke('chat-insights', {
+        body: { 
+          messages: [...chatMessages, userMessage].map(m => ({ 
+            role: m.role, 
+            content: m.content 
+          }))
+        }
+      });
+
+      if (error) throw error;
+
+      const assistantMessage: ChatMessage = {
+        role: 'assistant',
+        content: data.choices[0].message.content
+      };
+
+      setChatMessages(prev => [...prev, assistantMessage]);
+    } catch (error) {
+      console.error('Error sending message:', error);
+      toast({
+        title: "Error",
+        description: "Failed to send message. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSendingMessage(false);
+    }
   };
 
   const getInsightIcon = (type: string) => {
@@ -176,17 +229,78 @@ export function Insights() {
         })}
       </div>
 
-      {/* Motivational Footer */}
-      <Card className="interactive-card gradient-primary">
-        <CardContent className="p-6 text-center">
-          <Brain className="h-8 w-8 text-primary-foreground mx-auto mb-3" />
-          <h3 className="font-semibold text-primary-foreground mb-2">
-            Keep Growing!
-          </h3>
-          <p className="text-sm text-primary-foreground/90">
-            Every interaction is a step forward in building your social confidence. 
-            Trust the process and celebrate small wins!
+      {/* AI Chatbot */}
+      <Card className="interactive-card">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Brain className="h-5 w-5 text-primary" />
+            Chat with Your Coach
+          </CardTitle>
+          <p className="text-sm text-muted-foreground">
+            Ask me anything about your progress, get tips, or just chat!
           </p>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <ScrollArea className="h-[300px] pr-4">
+            {chatMessages.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                <Brain className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                <p className="text-sm">
+                  Start a conversation! Ask me about your stats, get tips, or chat about your progress.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {chatMessages.map((message, index) => (
+                  <div
+                    key={index}
+                    className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                  >
+                    <div
+                      className={`max-w-[80%] rounded-lg p-3 ${
+                        message.role === 'user'
+                          ? 'bg-primary text-primary-foreground'
+                          : 'bg-muted'
+                      }`}
+                    >
+                      <p className="text-sm">{message.content}</p>
+                    </div>
+                  </div>
+                ))}
+                {isSendingMessage && (
+                  <div className="flex justify-start">
+                    <div className="bg-muted rounded-lg p-3">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    </div>
+                  </div>
+                )}
+                <div ref={messagesEndRef} />
+              </div>
+            )}
+          </ScrollArea>
+          
+          <div className="flex gap-2">
+            <Input
+              placeholder="Ask me anything..."
+              value={inputMessage}
+              onChange={(e) => setInputMessage(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
+              disabled={isSendingMessage}
+              className="flex-1"
+            />
+            <Button
+              onClick={sendMessage}
+              disabled={!inputMessage.trim() || isSendingMessage}
+              size="icon"
+              className="tap-target"
+            >
+              {isSendingMessage ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Send className="h-4 w-4" />
+              )}
+            </Button>
+          </div>
         </CardContent>
       </Card>
     </div>
