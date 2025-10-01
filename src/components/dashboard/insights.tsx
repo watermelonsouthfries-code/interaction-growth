@@ -234,7 +234,7 @@ export function Insights() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Brain className="h-5 w-5 text-primary" />
-            Chat with Your Coach
+            Chat with Orion
           </CardTitle>
           <p className="text-sm text-muted-foreground">
             Ask me anything about your progress, get tips, or just chat!

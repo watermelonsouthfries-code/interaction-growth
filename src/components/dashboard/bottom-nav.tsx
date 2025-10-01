@@ -11,7 +11,7 @@ export function BottomNav({ currentView, onViewChange }: BottomNavProps) {
     { id: "home", icon: Home, label: "Home" },
     { id: "add", icon: Plus, label: "Add" },
     { id: "history", icon: BarChart3, label: "History" },
-    { id: "insights", icon: Brain, label: "Insights" },
+    { id: "insights", icon: Brain, label: "Orion" },
     { id: "settings", icon: Settings, label: "Settings" },
   ];
 
