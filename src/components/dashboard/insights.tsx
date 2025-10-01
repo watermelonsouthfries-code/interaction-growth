@@ -194,41 +194,6 @@ export function Insights() {
         </Button>
       </div>
 
-      {/* Insights Cards */}
-      <div className="space-y-4">
-        {insights.map((insight, index) => {
-          const Icon = getInsightIcon(insight.type);
-          return (
-            <Card key={index} className="interactive-card">
-              <CardHeader className="pb-3">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-2">
-                    <Icon className="h-5 w-5 text-primary" />
-                    <CardTitle className="text-base">{insight.title}</CardTitle>
-                  </div>
-                  <Badge className={getInsightBadgeColor(insight.type)}>
-                    {insight.type}
-                  </Badge>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  {insight.message}
-                </p>
-                <div className="bg-primary/5 border border-primary/20 rounded-lg p-3">
-                  <div className="flex items-start gap-2">
-                    <Lightbulb className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                    <p className="text-sm font-medium text-primary">
-                      {insight.suggestion}
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
-
       {/* AI Chatbot */}
       <Card className="interactive-card">
         <CardHeader>
@@ -303,6 +268,41 @@ export function Insights() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Insights Cards */}
+      <div className="space-y-4">
+        {insights.map((insight, index) => {
+          const Icon = getInsightIcon(insight.type);
+          return (
+            <Card key={index} className="interactive-card">
+              <CardHeader className="pb-3">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-2">
+                    <Icon className="h-5 w-5 text-primary" />
+                    <CardTitle className="text-base">{insight.title}</CardTitle>
+                  </div>
+                  <Badge className={getInsightBadgeColor(insight.type)}>
+                    {insight.type}
+                  </Badge>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  {insight.message}
+                </p>
+                <div className="bg-primary/5 border border-primary/20 rounded-lg p-3">
+                  <div className="flex items-start gap-2">
+                    <Lightbulb className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                    <p className="text-sm font-medium text-primary">
+                      {insight.suggestion}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
     </div>
   );
 }
