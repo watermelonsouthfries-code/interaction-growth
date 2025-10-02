@@ -13,6 +13,7 @@ const Index = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [currentView, setCurrentView] = useState("home");
+  const [editingInteractionId, setEditingInteractionId] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     // Get initial session
@@ -37,7 +38,13 @@ const Index = () => {
   };
 
   const handleAddInteractionSuccess = () => {
+    setEditingInteractionId(undefined);
     setCurrentView("home");
+  };
+
+  const handleEditInteraction = (interactionId: string) => {
+    setEditingInteractionId(interactionId);
+    setCurrentView("add");
   };
 
   if (loading) {
@@ -55,16 +62,23 @@ const Index = () => {
   const renderCurrentView = () => {
     switch (currentView) {
       case "home":
-        return <Home onAddInteraction={() => setCurrentView("add")} />;
+        return <Home onAddInteraction={() => {
+          setEditingInteractionId(undefined);
+          setCurrentView("add");
+        }} />;
       case "add":
         return (
           <AddInteraction
-            onBack={() => setCurrentView("home")}
+            onBack={() => {
+              setEditingInteractionId(undefined);
+              setCurrentView("home");
+            }}
             onSuccess={handleAddInteractionSuccess}
+            editingId={editingInteractionId}
           />
         );
       case "history":
-        return <History />;
+        return <History onEdit={handleEditInteraction} />;
       case "analytics":
         return <Analytics />;
       case "insights":
@@ -72,7 +86,10 @@ const Index = () => {
       case "settings":
         return <Settings onSignOut={handleSignOut} />;
       default:
-        return <Home onAddInteraction={() => setCurrentView("add")} />;
+        return <Home onAddInteraction={() => {
+          setEditingInteractionId(undefined);
+          setCurrentView("add");
+        }} />;
     }
   };
 

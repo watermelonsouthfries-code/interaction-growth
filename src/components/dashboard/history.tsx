@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Calendar, Clock, MapPin, Users, Star } from "lucide-react";
+import { Calendar, Clock, MapPin, Users, Star, Edit } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
@@ -23,7 +24,11 @@ interface GroupedInteractions {
   [date: string]: Interaction[];
 }
 
-export function History() {
+interface HistoryProps {
+  onEdit?: (interactionId: string) => void;
+}
+
+export function History({ onEdit }: HistoryProps = {}) {
   const [interactions, setInteractions] = useState<Interaction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
@@ -152,21 +157,41 @@ export function History() {
                               </>
                             )}
                           </div>
-                          <Badge className={getQualityBadgeClass(interaction.interaction_quality)}>
-                            {interaction.interaction_quality}
-                          </Badge>
+                          <div className="flex items-center gap-2">
+                            {interaction.interaction_quality && (
+                              <Badge className={getQualityBadgeClass(interaction.interaction_quality)}>
+                                {interaction.interaction_quality}
+                              </Badge>
+                            )}
+                            {onEdit && (
+                              <Button 
+                                variant="ghost" 
+                                size="icon"
+                                className="h-8 w-8"
+                                onClick={() => onEdit(interaction.id)}
+                              >
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                            )}
+                          </div>
                         </div>
                         
-                        <div className="grid grid-cols-2 gap-4 text-sm mb-3">
-                          <div>
-                            <span className="text-muted-foreground">Age:</span>
-                            <span className="ml-1 font-medium">{interaction.age_range}</span>
+                        {(interaction.age_range || interaction.ethnicity) && (
+                          <div className="grid grid-cols-2 gap-4 text-sm mb-3">
+                            {interaction.age_range && (
+                              <div>
+                                <span className="text-muted-foreground">Age:</span>
+                                <span className="ml-1 font-medium">{interaction.age_range}</span>
+                              </div>
+                            )}
+                            {interaction.ethnicity && (
+                              <div>
+                                <span className="text-muted-foreground">Ethnicity:</span>
+                                <span className="ml-1 font-medium">{interaction.ethnicity}</span>
+                              </div>
+                            )}
                           </div>
-                          <div>
-                            <span className="text-muted-foreground">Ethnicity:</span>
-                            <span className="ml-1 font-medium">{interaction.ethnicity}</span>
-                          </div>
-                        </div>
+                        )}
                         
                         <div className="flex items-center gap-2 mb-3">
                           <Star className="h-4 w-4 text-primary" />

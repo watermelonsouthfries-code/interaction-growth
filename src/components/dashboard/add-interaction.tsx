@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,9 +13,10 @@ import { useToast } from "@/hooks/use-toast";
 interface AddInteractionProps {
   onBack: () => void;
   onSuccess: () => void;
+  editingId?: string;
 }
 
-export function AddInteraction({ onBack, onSuccess }: AddInteractionProps) {
+export function AddInteraction({ onBack, onSuccess, editingId }: AddInteractionProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     date: new Date().toISOString().split('T')[0],
@@ -29,6 +30,44 @@ export function AddInteraction({ onBack, onSuccess }: AddInteractionProps) {
   });
   const { toast } = useToast();
 
+  useEffect(() => {
+    if (editingId) {
+      loadInteraction();
+    }
+  }, [editingId]);
+
+  const loadInteraction = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('interactions')
+        .select('*')
+        .eq('id', editingId)
+        .single();
+
+      if (error) throw error;
+
+      if (data) {
+        setFormData({
+          date: data.date,
+          time: data.time,
+          location: data.location || "",
+          ageRange: data.age_range || "",
+          ethnicity: data.ethnicity || "",
+          attractivenessRating: [data.attractiveness_rating],
+          interactionQuality: data.interaction_quality || "",
+          notes: data.notes || "",
+        });
+      }
+    } catch (error) {
+      console.error('Error loading interaction:', error);
+      toast({
+        title: "Error loading interaction",
+        description: "Unable to load interaction details",
+        variant: "destructive",
+      });
+    }
+  };
+
   const ageRanges = ["Under 18", "18-24", "25-34", "35-44", "45+"];
   const ethnicities = ["White", "Black", "Hispanic/Latino", "Asian", "Middle Eastern", "Mixed", "Other"];
   const qualities = ["Good", "Neutral", "Bad"];
@@ -41,7 +80,7 @@ export function AddInteraction({ onBack, onSuccess }: AddInteractionProps) {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("User not authenticated");
 
-      const { error } = await supabase.from('interactions').insert({
+      const interactionData = {
         user_id: user.id,
         date: formData.date,
         time: formData.time,
@@ -51,20 +90,34 @@ export function AddInteraction({ onBack, onSuccess }: AddInteractionProps) {
         attractiveness_rating: formData.attractivenessRating[0],
         interaction_quality: formData.interactionQuality || null,
         notes: formData.notes || null,
-      });
+      };
+
+      let error;
+      if (editingId) {
+        ({ error } = await supabase
+          .from('interactions')
+          .update(interactionData)
+          .eq('id', editingId));
+      } else {
+        ({ error } = await supabase
+          .from('interactions')
+          .insert(interactionData));
+      }
 
       if (error) throw error;
 
       toast({
-        title: "Interaction logged!",
-        description: "Your interaction has been successfully recorded.",
+        title: editingId ? "Interaction updated!" : "Interaction logged!",
+        description: editingId 
+          ? "Your interaction has been successfully updated."
+          : "Your interaction has been successfully recorded.",
       });
       
       onSuccess();
     } catch (error) {
       console.error('Error saving interaction:', error);
       toast({
-        title: "Error saving interaction",
+        title: editingId ? "Error updating interaction" : "Error saving interaction",
         description: "Please try again.",
         variant: "destructive",
       });
@@ -89,7 +142,7 @@ export function AddInteraction({ onBack, onSuccess }: AddInteractionProps) {
         <Button variant="ghost" onClick={onBack} className="tap-target">
           <ArrowLeft className="h-5 w-5" />
         </Button>
-        <h1 className="text-xl font-bold">Add Interaction</h1>
+        <h1 className="text-xl font-bold">{editingId ? "Edit Interaction" : "Add Interaction"}</h1>
         <div className="w-10" /> {/* Spacer */}
       </div>
 
@@ -244,7 +297,7 @@ export function AddInteraction({ onBack, onSuccess }: AddInteractionProps) {
           className="w-full tap-target h-14 text-lg font-semibold gradient-primary"
         >
           <Save className="mr-2 h-5 w-5" />
-          {isLoading ? "Saving..." : "Save Interaction"}
+          {isLoading ? "Saving..." : (editingId ? "Update Interaction" : "Save Interaction")}
         </Button>
       </form>
     </div>
