@@ -51,6 +51,15 @@ export function Insights() {
         throw error;
       }
 
+      if (data?.error) {
+        toast({
+          title: "Unable to load insights",
+          description: data.error,
+          variant: "destructive",
+        });
+        throw new Error(data.error);
+      }
+
       if (data?.insights && Array.isArray(data.insights)) {
         setInsights(data.insights);
       } else {
@@ -59,11 +68,17 @@ export function Insights() {
       }
     } catch (error) {
       console.error('Error loading insights:', error);
-      toast({
-        title: "Error loading insights",
-        description: "Using default insights. Try refreshing later.",
-        variant: "destructive",
-      });
+      const errorMessage = error instanceof Error && error.message.includes('Rate limit') 
+        ? error.message 
+        : "Using default insights. Try refreshing later.";
+      
+      if (!errorMessage.includes('Rate limit')) {
+        toast({
+          title: "Error loading insights",
+          description: errorMessage,
+          variant: "destructive",
+        });
+      }
       
       // Fallback insights
       setInsights([
@@ -111,6 +126,15 @@ export function Insights() {
 
       if (error) throw error;
 
+      if (data.error) {
+        toast({
+          title: "Unable to send message",
+          description: data.error,
+          variant: "destructive",
+        });
+        return;
+      }
+
       const assistantMessage: ChatMessage = {
         role: 'assistant',
         content: data.choices[0].message.content
@@ -121,7 +145,7 @@ export function Insights() {
       console.error('Error sending message:', error);
       toast({
         title: "Error",
-        description: "Failed to send message. Please try again.",
+        description: "Failed to send message. Please try again in a moment.",
         variant: "destructive",
       });
     } finally {
