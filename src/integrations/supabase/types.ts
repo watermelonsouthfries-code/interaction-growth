@@ -16,13 +16,13 @@ export type Database = {
     Tables: {
       interactions: {
         Row: {
-          age_range: string
+          age_range: string | null
           attractiveness_rating: number
           created_at: string
           date: string
-          ethnicity: string
+          ethnicity: string | null
           id: string
-          interaction_quality: string
+          interaction_quality: string | null
           location: string | null
           notes: string | null
           time: string
@@ -30,13 +30,13 @@ export type Database = {
           user_id: string
         }
         Insert: {
-          age_range: string
+          age_range?: string | null
           attractiveness_rating: number
           created_at?: string
           date?: string
-          ethnicity: string
+          ethnicity?: string | null
           id?: string
-          interaction_quality: string
+          interaction_quality?: string | null
           location?: string | null
           notes?: string | null
           time?: string
@@ -44,13 +44,13 @@ export type Database = {
           user_id: string
         }
         Update: {
-          age_range?: string
+          age_range?: string | null
           attractiveness_rating?: number
           created_at?: string
           date?: string
-          ethnicity?: string
+          ethnicity?: string | null
           id?: string
-          interaction_quality?: string
+          interaction_quality?: string | null
           location?: string | null
           notes?: string | null
           time?: string

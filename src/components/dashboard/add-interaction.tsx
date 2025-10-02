@@ -46,10 +46,10 @@ export function AddInteraction({ onBack, onSuccess }: AddInteractionProps) {
         date: formData.date,
         time: formData.time,
         location: formData.location || null,
-        age_range: formData.ageRange,
-        ethnicity: formData.ethnicity,
+        age_range: formData.ageRange || null,
+        ethnicity: formData.ethnicity || null,
         attractiveness_rating: formData.attractivenessRating[0],
-        interaction_quality: formData.interactionQuality,
+        interaction_quality: formData.interactionQuality || null,
         notes: formData.notes || null,
       });
 
@@ -147,11 +147,10 @@ export function AddInteraction({ onBack, onSuccess }: AddInteractionProps) {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label>Age Range</Label>
+              <Label>Age Range (Optional)</Label>
               <Select 
                 value={formData.ageRange} 
                 onValueChange={(value) => setFormData(prev => ({ ...prev, ageRange: value }))}
-                required
               >
                 <SelectTrigger className="tap-target">
                   <SelectValue placeholder="Select age range" />
@@ -165,11 +164,10 @@ export function AddInteraction({ onBack, onSuccess }: AddInteractionProps) {
             </div>
 
             <div className="space-y-2">
-              <Label>Ethnicity</Label>
+              <Label>Ethnicity (Optional)</Label>
               <Select 
                 value={formData.ethnicity} 
                 onValueChange={(value) => setFormData(prev => ({ ...prev, ethnicity: value }))}
-                required
               >
                 <SelectTrigger className="tap-target">
                   <SelectValue placeholder="Select ethnicity" />
@@ -206,7 +204,7 @@ export function AddInteraction({ onBack, onSuccess }: AddInteractionProps) {
         {/* Interaction Quality */}
         <Card className="interactive-card">
           <CardHeader>
-            <CardTitle className="text-base">How did it go?</CardTitle>
+            <CardTitle className="text-base">How did it go? (Optional)</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-3 gap-2">
@@ -242,7 +240,7 @@ export function AddInteraction({ onBack, onSuccess }: AddInteractionProps) {
         {/* Submit Button */}
         <Button
           type="submit"
-          disabled={isLoading || !formData.ageRange || !formData.ethnicity || !formData.interactionQuality}
+          disabled={isLoading}
           className="w-full tap-target h-14 text-lg font-semibold gradient-primary"
         >
           <Save className="mr-2 h-5 w-5" />
