@@ -127,7 +127,7 @@ export function AddInteraction({ onBack, onSuccess }: AddInteractionProps) {
             <div className="space-y-2">
               <Label htmlFor="location" className="flex items-center gap-2">
                 <MapPin className="h-4 w-4" />
-                Location (Optional)
+                Location
               </Label>
               <Input
                 id="location"
@@ -147,8 +147,8 @@ export function AddInteraction({ onBack, onSuccess }: AddInteractionProps) {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label>Age Range (Optional)</Label>
-              <Select 
+              <Label>Age Range</Label>
+              <Select
                 value={formData.ageRange} 
                 onValueChange={(value) => setFormData(prev => ({ ...prev, ageRange: value }))}
               >
@@ -164,8 +164,8 @@ export function AddInteraction({ onBack, onSuccess }: AddInteractionProps) {
             </div>
 
             <div className="space-y-2">
-              <Label>Ethnicity (Optional)</Label>
-              <Select 
+              <Label>Ethnicity</Label>
+              <Select
                 value={formData.ethnicity} 
                 onValueChange={(value) => setFormData(prev => ({ ...prev, ethnicity: value }))}
               >
@@ -204,7 +204,7 @@ export function AddInteraction({ onBack, onSuccess }: AddInteractionProps) {
         {/* Interaction Quality */}
         <Card className="interactive-card">
           <CardHeader>
-            <CardTitle className="text-base">How did it go? (Optional)</CardTitle>
+            <CardTitle className="text-base">How did it go?</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-3 gap-2">
@@ -224,7 +224,7 @@ export function AddInteraction({ onBack, onSuccess }: AddInteractionProps) {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="notes">Notes (Optional)</Label>
+              <Label htmlFor="notes">Notes</Label>
               <Textarea
                 id="notes"
                 placeholder="How did the conversation go? What did you learn?"
