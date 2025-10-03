@@ -269,7 +269,7 @@ export function AddInteraction({ onBack, onSuccess, editingId }: AddInteractionP
                   onClick={() => setFormData(prev => ({ ...prev, interactionQuality: quality }))}
                   className={`tap-target ${
                     formData.interactionQuality === quality ? getQualityBadgeClass(quality) : ""
-                  }`}
+                  } ${quality === "Bad" ? "active:bg-destructive active:text-destructive-foreground" : ""}`}
                 >
                   {quality}
                 </Button>
